@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import api from "../api";
 
 const Users = () => {
-  const [count, setCounter] = useState(12);
-
   const [data, setData] = useState(api.users.fetchAll());
-
+  const count = data.length;
   console.log(api.users.fetchAll());
 
   const formatCountUser = () => {
@@ -20,18 +18,25 @@ const Users = () => {
     return classes;
   };
 
-  const handleDelete = () => {
-    setCounter((prevState) => prevState - 1);
-    console.log(count);
+  const handleDelete = (id) => {
+    setData(data.filter((item) => item._id !== id));
   };
+
+  const renderUsers = () => {
+    return (
+      count !== 0 && (
+        <span className={getBageClasses()}>{formatCountUser()}</span>
+      )
+    );
+  };
+  if (count == 0) {
+    return <span className={getBageClasses()}>{formatCountUser()}</span>;
+  }
 
   return (
     <>
-      <span className={getBageClasses()}>{formatCountUser()}</span>
-      <button className=" btn btn-primary btn-sm m-2" onClick={handleDelete}>
-        Delete
-      </button>
-      <table class="table">
+      {renderUsers()}
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">Имя</th>
@@ -39,25 +44,38 @@ const Users = () => {
             <th scope="col">Профессия</th>
             <th scope="col">Встретился, раз</th>
             <th scope="col">Оценка</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            {data.map((data) => (
-              <td>{data}</td>
-            ))}
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td colspan="2">Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
+          {data.map((item) => {
+            return (
+              <tr key={item._id}>
+                <td> {item.name} </td>
+                <td>
+                  {item.qualities.map((qual) => (
+                    <span
+                      key={qual._id}
+                      className={`badge m-1 bg-${qual.color}`}
+                    >
+                      {qual.name}
+                    </span>
+                  ))}
+                </td>
+                <td>{item.profession.name}</td>
+                <td>{item.completedMeetings}</td>
+                <td>{item.rate}</td>
+                <td>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </>
